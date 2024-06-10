@@ -85,31 +85,49 @@ def case3_mixed_lines(lines):
     else:
         messagebox.showinfo("Result", "No suitable triangle found.")
 
-# Case 4: Grid Formation (Maximum Area Quadrilateral)
 def case4_grid_formation(lines):
-    max_area = 0
-    best_quadrilateral = None
+    # Sort lines by slope (first value in each tuple)
+    slope_1_lines = []
+    slope_2_lines = []
+    m = lines[0][0]
+    for line in lines:
+        if m == line[0]:
+            slope_1_lines.append(line)
+        else:
+            slope_2_lines.append(line)
     
-    for i in range(len(lines)):
-        for j in range(i+1, len(lines)):
-            for k in range(j+1, len(lines)):
-                for l in range(k+1, len(lines)):
-                    p1 = intersection_point(lines[i], lines[j])
-                    p2 = intersection_point(lines[j], lines[k])
-                    p3 = intersection_point(lines[k], lines[l])
-                    p4 = intersection_point(lines[l], lines[i])
-                    if p1 and p2 and p3 and p4:
-                        # Calculate the area of the quadrilateral using the Shoelace formula
-                        area = 0.5 * abs(p1[0]*p2[1] + p2[0]*p3[1] + p3[0]*p4[1] + p4[0]*p1[1]
-                                         - p1[1]*p2[0] - p2[1]*p3[0] - p3[1]*p4[0] - p4[1]*p1[0])
-                        if area > max_area:
-                            max_area = area
-                            best_quadrilateral = [p1, p2, p3, p4]
+    # Sort lines by intercept (c) in descending order
+    slope_1_lines.sort(key=lambda x: x[1], reverse=True)
+    slope_2_lines.sort(key=lambda x: x[1], reverse=True)
     
-    if best_quadrilateral:
-        messagebox.showinfo("Result", "Watchman route with at most four links exists.")
-        route = best_quadrilateral + [best_quadrilateral[0]]
-        plot_lines_and_route(lines, route)
+    
+    outer1 = slope_1_lines[0]
+    outer2 = slope_1_lines[-1]
+    outer3 = slope_2_lines[0]
+    outer4 = slope_2_lines[-1]
+
+    print(outer1,outer2,outer3,outer4)
+    
+    # Calculate intersection points
+    p1 = intersection_point(outer1, outer3)
+    p2 = intersection_point(outer1, outer4)
+    p3 = intersection_point(outer2, outer4)
+    p4 = intersection_point(outer2, outer3)
+
+    print(p1,p2,p3,p4)
+    
+    if p1 and p2 and p3 and p4:
+        # Calculate the area of the quadrilateral using the Shoelace formula
+        area = 0.5 * abs(p1[0]*p2[1] + p2[0]*p3[1] + p3[0]*p4[1] + p4[0]*p1[1]
+                         - p1[1]*p2[0] - p2[1]*p3[0] - p3[1]*p4[0] - p4[1]*p1[0])
+        if area > 0:
+            messagebox.showinfo("Result", "Watchman route with at most four links exists.")
+            route = [p1, p2, p3, p4, p1]
+            plot_lines_and_route(lines, route)
+        else:
+            messagebox.showinfo("Result", "quadrilateral found with very less Area.")
+            route = [p1, p2, p3, p4, p1]
+            plot_lines_and_route(lines, route)
     else:
         messagebox.showinfo("Result", "No suitable quadrilateral found.")
 
@@ -155,9 +173,9 @@ def set_default_lines(case):
     elif case == 2:
         default_lines = [(1, 1), (2, 3), (-1, 2)]  # All non-parallel
     elif case == 3:
-        default_lines = [(1, 1), (2, 3), (-1, 2), (0.5, -1)]  # Mixed lines
+        default_lines = [(1, 1), (2, 3), (-1, 2), (0.5, -1), (1, 4)]  # Mixed lines
     elif case == 4:
-        default_lines = [(1, 0), (-1, 0), (0, -1), (2, 2),(3,4)]  # Grid formation
+        default_lines = [(1, 4), (1, 3), (1, 6), (1, 7), (5, 1),(5,7)]  # Grid formation
     else:
         default_lines = []
     
@@ -191,7 +209,7 @@ tk.Button(root, text="Case 4: Grid Formation", command=lambda: run_case(4)).grid
 #tk.Button(root, text="Custom Input", command=custom_input).grid(row=0, column=3, columnspan=3)
 
 
-tk.Label(root, text="Default Inputs to Test the 4 Cases").grid(row=6, column=0, columnspan=3)
+tk.Label(root, text="Don't want to set lines No worries, click on Default case buttons to Test the 4 Cases").grid(row=6, column=0, columnspan=3)
 
 # Buttons for default lines
 tk.Button(root, text="Default Case 1", command=lambda: set_default_lines(1)).grid(row=7, column=0)
