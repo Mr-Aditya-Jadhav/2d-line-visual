@@ -106,7 +106,6 @@ def case4_grid_formation(lines):
     outer3 = slope_2_lines[0]
     outer4 = slope_2_lines[-1]
 
-    print(outer1,outer2,outer3,outer4)
     
     # Calculate intersection points
     p1 = intersection_point(outer1, outer3)
@@ -114,7 +113,6 @@ def case4_grid_formation(lines):
     p3 = intersection_point(outer2, outer4)
     p4 = intersection_point(outer2, outer3)
 
-    print(p1,p2,p3,p4)
     
     if p1 and p2 and p3 and p4:
         # Calculate the area of the quadrilateral using the Shoelace formula

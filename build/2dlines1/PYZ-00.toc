@@ -1,4 +1,4 @@
-('C:\\Users\\Aditya\\Documents\\vscode\\visual-algo\\build\\2dlines1\\PYZ-00.pyz',
+('C:\\Users\\Aditya\\Documents\\vscode\\2d-line-visual\\build\\2dlines1\\PYZ-00.pyz',
  [('PIL',
    'C:\\Users\\Aditya\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\site-packages\\PIL\\__init__.py',
    'PYMODULE'),
