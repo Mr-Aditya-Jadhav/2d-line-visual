@@ -39,29 +39,26 @@ def intersection_point(line1, line2):
     return (x, y)
 
 # Case 1: All Lines Parallel to each other
-def case1_parallel_lines(lines):
-    if all(are_parallel(lines[i], lines[j]) for i in range(len(lines)) for j in range(i+1, len(lines))):
-        messagebox.showinfo("Result", "No watchman route exists for parallel lines.")
-        plot_lines_and_route(lines)
-    else:
-        messagebox.showinfo("Result", "Not all lines are parallel.")
+def case1_parallel_lines(lines, b):
+    messagebox.showinfo("Result", "No watchman route exists for parallel lines.")
+    plot_lines_and_route(lines)
 
 # Case 2: All lines are non-parallel
-def case2_non_parallel_lines(lines):
-    if not any(are_parallel(lines[i], lines[j]) for i in range(len(lines)) for j in range(i+1, len(lines))):
-        messagebox.showinfo("Result", "Watchman route with at most two links exists.")
-        # Select any line as starting line
-        start_line = lines[0]
-        # Find intersection points with all other lines
-        intersections = [intersection_point(start_line, line) for line in lines if intersection_point(start_line, line)]
-        # Route: start -> intersections -> turn 180 degrees -> back to start
-        route = [intersections[0]] + intersections[::-1]
-        plot_lines_and_route(lines, route)
-    else:
-        messagebox.showinfo("Result", "Not all lines are non-parallel.")
+def case2_non_parallel_lines(lines, b):
+    if b is not None and b < 2:
+        messagebox.showinfo("Result", f"A watchman route with {b} link(s) is not possible for non-parallel lines.")
+        return
+    messagebox.showinfo("Result", "Watchman route with at most two links exists.")
+    # Select any line as starting line
+    start_line = lines[0]
+    # Find intersection points with all other lines
+    intersections = [intersection_point(start_line, line) for line in lines if intersection_point(start_line, line)]
+    # Route: start -> intersections -> turn 180 degrees -> back to start
+    route = [intersections[0]] + intersections[::-1]
+    plot_lines_and_route(lines, route)
 
 # Case 3: Mixture of Parallel and Non-Parallel Lines
-def case3_mixed_lines(lines):
+def case3_mixed_lines(lines, b):
     # Assuming we can find a triangle with maximum area to use for the route
     max_area = 0
     best_triangle = None
@@ -79,13 +76,17 @@ def case3_mixed_lines(lines):
                         best_triangle = [p1, p2, p3]
     
     if best_triangle:
+        if b is not None and b < 3:
+            messagebox.showinfo("Result", f"A watchman route with {b} link(s) is not possible for mixed lines.")
+            return
         messagebox.showinfo("Result", "Watchman route with at most three links exists.")
         route = best_triangle + [best_triangle[0]]
         plot_lines_and_route(lines, route)
     else:
         messagebox.showinfo("Result", "No suitable triangle found.")
 
-def case4_grid_formation(lines):
+# Case 4: Grid Formation
+def case4_grid_formation(lines, b):
     # Sort lines by slope (first value in each tuple)
     slope_1_lines = []
     slope_2_lines = []
@@ -100,48 +101,48 @@ def case4_grid_formation(lines):
     slope_1_lines.sort(key=lambda x: x[1], reverse=True)
     slope_2_lines.sort(key=lambda x: x[1], reverse=True)
     
-    
     outer1 = slope_1_lines[0]
     outer2 = slope_1_lines[-1]
     outer3 = slope_2_lines[0]
     outer4 = slope_2_lines[-1]
 
-    
     # Calculate intersection points
     p1 = intersection_point(outer1, outer3)
     p2 = intersection_point(outer1, outer4)
     p3 = intersection_point(outer2, outer4)
     p4 = intersection_point(outer2, outer3)
 
-    
     if p1 and p2 and p3 and p4:
         # Calculate the area of the quadrilateral using the Shoelace formula
         area = 0.5 * abs(p1[0]*p2[1] + p2[0]*p3[1] + p3[0]*p4[1] + p4[0]*p1[1]
                          - p1[1]*p2[0] - p2[1]*p3[0] - p3[1]*p4[0] - p4[1]*p1[0])
         if area > 0:
+            if b is not None and b < 4:
+                messagebox.showinfo("Result", f"A watchman route with {b} link(s) is not possible for grid formation.")
+                return
             messagebox.showinfo("Result", "Watchman route with at most four links exists.")
             route = [p1, p2, p3, p4, p1]
             plot_lines_and_route(lines, route)
         else:
-            messagebox.showinfo("Result", "quadrilateral found with very less Area.")
+            messagebox.showinfo("Result", "Quadrilateral found with very less area.")
             route = [p1, p2, p3, p4, p1]
             plot_lines_and_route(lines, route)
     else:
         messagebox.showinfo("Result", "No suitable quadrilateral found.")
 
-# Function to run the selected case
-def run_case(case):
-    lines = [(float(entries[i][0].get()), float(entries[i][1].get())) for i in range(len(entries))]
-    if case == 1:
-        case1_parallel_lines(lines)
-    elif case == 2:
-        case2_non_parallel_lines(lines)
-    elif case == 3:
-        case3_mixed_lines(lines)
-    elif case == 4:
-        case4_grid_formation(lines)
+# Function to automatically detect the case
+def detect_case(lines, b):
+    all_parallel = all(are_parallel(lines[i], lines[j]) for i in range(len(lines)) for j in range(i+1, len(lines)))
+    all_non_parallel = not any(are_parallel(lines[i], lines[j]) for i in range(len(lines)) for j in range(i+1, len(lines)))
+
+    if all_parallel:
+        case1_parallel_lines(lines, b)
+    elif all_non_parallel:
+        case2_non_parallel_lines(lines, b)
     else:
-        messagebox.showerror("Error", "Invalid case selected.")
+        case3_mixed_lines(lines, b)
+        if len(set(line[0] for line in lines)) == 2:  # Check for grid formation
+            case4_grid_formation(lines, b)
 
 # Function to create input fields for lines
 def create_input_fields():
@@ -161,9 +162,11 @@ def create_input_fields():
 # Function to handle custom input case
 def custom_input():
     lines = [(float(entries[i][0].get()), float(entries[i][1].get())) for i in range(len(entries))]
-    plot_lines_and_route(lines)
+    b = b_entry.get()
+    b = int(b) if b else None
+    detect_case(lines, b)
 
-# Function to set default lines for each case
+# Function to set default lines for testing
 def set_default_lines(case):
     global entries
     if case == 1:
@@ -173,7 +176,7 @@ def set_default_lines(case):
     elif case == 3:
         default_lines = [(1, 1), (2, 3), (-1, 2), (0.5, -1), (1, 4)]  # Mixed lines
     elif case == 4:
-        default_lines = [(1, 4), (1, 3), (1, 6), (1, 7), (5, 1),(5,7)]  # Grid formation
+        default_lines = [(1, 4), (1, 3), (1, 6), (1, 7), (5, 1), (5, 7)]  # Grid formation
     else:
         default_lines = []
     
@@ -196,18 +199,16 @@ num_lines_entry = tk.Entry(root)
 num_lines_entry.grid(row=0, column=1)
 tk.Button(root, text="Set Lines", command=create_input_fields).grid(row=0, column=2)
 
+tk.Label(root, text="Optional: Maximum number of links (b):").grid(row=1, column=0)
+b_entry = tk.Entry(root)
+b_entry.grid(row=1, column=1)
+
 input_frame = tk.Frame(root)
-input_frame.grid(row=1, column=0, columnspan=3)
+input_frame.grid(row=2, column=0, columnspan=3)
 
-tk.Button(root, text="Case 1: All Parallel", command=lambda: run_case(1)).grid(row=2, column=0)
-tk.Button(root, text="Case 2: All Non-Parallel", command=lambda: run_case(2)).grid(row=2, column=1)
-tk.Button(root, text="Case 3: Mixed Lines", command=lambda: run_case(3)).grid(row=2, column=2)
-tk.Button(root, text="Case 4: Grid Formation", command=lambda: run_case(4)).grid(row=2, column=3)
+tk.Button(root, text="Check Watchman Route", command=custom_input).grid(row=3, column=0, columnspan=3)
 
-#tk.Button(root, text="Custom Input", command=custom_input).grid(row=0, column=3, columnspan=3)
-
-
-tk.Label(root, text="Don't want to set lines No worries, click on Default case buttons to Test the 4 Cases").grid(row=6, column=0, columnspan=3)
+tk.Label(root, text="Don't want to set lines? No worries, click on Default case buttons to test the 4 Cases").grid(row=6, column=0, columnspan=3)
 
 # Buttons for default lines
 tk.Button(root, text="Default Case 1", command=lambda: set_default_lines(1)).grid(row=7, column=0)
