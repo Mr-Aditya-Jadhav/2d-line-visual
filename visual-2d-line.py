@@ -192,7 +192,7 @@ def set_default_lines(case):
 
 # Create the main window
 root = tk.Tk()
-root.title("b-Link Watchman Route")
+root.title("Minimum Link Watchman Route")
 
 tk.Label(root, text="Number of Lines:").grid(row=0, column=0)
 num_lines_entry = tk.Entry(root)
