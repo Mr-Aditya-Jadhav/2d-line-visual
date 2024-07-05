@@ -151,8 +151,9 @@ def create_input_fields():
     for widget in input_frame.winfo_children():
         widget.destroy()
     entries = []
+    
     for i in range(num_lines):
-        tk.Label(input_frame, text=f"Line {i+1} (m, c):").grid(row=i, column=0)
+        tk.Label(input_frame, text=f"Line {i+1} (Slope, Intercept):").grid(row=i, column=0)
         m_entry = tk.Entry(input_frame)
         m_entry.grid(row=i, column=1)
         c_entry = tk.Entry(input_frame)
@@ -203,17 +204,18 @@ tk.Label(root, text="Optional: Maximum number of links (b):").grid(row=1, column
 b_entry = tk.Entry(root)
 b_entry.grid(row=1, column=1)
 
+tk.Label(root, text ="The equation of line is mx + c, in which m is the slope and c is the intercpt").grid(row = 2, column = 0, columnspan = 3)
 input_frame = tk.Frame(root)
-input_frame.grid(row=2, column=0, columnspan=3)
+input_frame.grid(row=3, column=0, columnspan=3)
 
-tk.Button(root, text="Check Watchman Route", command=custom_input).grid(row=3, column=0, columnspan=3)
+tk.Button(root, text="Check Watchman Route", command=custom_input).grid(row=4, column=0, columnspan=3)
 
-tk.Label(root, text="Don't want to set lines? No worries, click on Default case buttons to test the 4 Cases").grid(row=6, column=0, columnspan=3)
+tk.Label(root, text="Don't want to set lines? No worries, click on Default case buttons to test the 4 Cases").grid(row=7, column=0, columnspan=3)
 
 # Buttons for default lines
-tk.Button(root, text="Default Case 1", command=lambda: set_default_lines(1)).grid(row=7, column=0)
-tk.Button(root, text="Default Case 2", command=lambda: set_default_lines(2)).grid(row=7, column=1)
-tk.Button(root, text="Default Case 3", command=lambda: set_default_lines(3)).grid(row=7, column=2)
-tk.Button(root, text="Default Case 4", command=lambda: set_default_lines(4)).grid(row=7, column=3)
+tk.Button(root, text="Default Case 1", command=lambda: set_default_lines(1)).grid(row=8, column=0)
+tk.Button(root, text="Default Case 2", command=lambda: set_default_lines(2)).grid(row=8, column=1)
+tk.Button(root, text="Default Case 3", command=lambda: set_default_lines(3)).grid(row=8, column=2)
+tk.Button(root, text="Default Case 4", command=lambda: set_default_lines(4)).grid(row=8, column=3)
 
 root.mainloop()
